@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fitness Tracker App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .summary {
+      background: #e9f5e9;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+    .progress-bar {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    .progress {
+      height: 15px;
+      background-color: #4CAF50;
+      border-radius: 5px;
+      width: 0%;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+    }
+    tr:hover {background-color: #f1f1f1;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏋️‍♂️ Fitness Tracker</h1>
+    <h2>Add Activity</h2>
+    <input type="text" id="activity" placeholder="Activity (e.g., Running, Yoga)" />
+    <input type="number" id="calories" placeholder="Calories Burned" />
+    <input type="number" id="steps" placeholder="Steps Taken" />
+    <button id="addBtn">Add Activity</button>
+
+    <div class="summary">
+      <h2>Daily Summary</h2>
+      <p>Total Calories: <span id="totalCalories">0</span></p>
+      <p>Total Steps: <span id="totalSteps">0</span></p>
+      <div class="progress-bar">
+        <div id="progress" class="progress"></div>
+      </div>
+      <p>Goal: 10,000 steps</p>
+    </div>
+
+    <h2>Activity Log</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Activity</th>
+          <th>Calories</th>
+          <th>Steps</th>
+        </tr>
+      </thead>
+      <tbody id="activityTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const activityInput = document.getElementById('activity');
+    const caloriesInput = document.getElementById('calories');
+    const stepsInput = document.getElementById('steps');
+    const addBtn = document.getElementById('addBtn');
+    const tableBody = document.getElementById('activityTable');
+    const totalCaloriesEl = document.getElementById('totalCalories');
+    const totalStepsEl = document.getElementById('totalSteps');
+    const progressBar = document.getElementById('progress');
+
+    let activities = JSON.parse(localStorage.getItem('fitnessData')) || [];
+
+    function renderTable() {
+      tableBody.innerHTML = '';
+      let totalCalories = 0;
+      let totalSteps = 0;
+
+      activities.forEach(a => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${a.date}</td>
+          <td>${a.activity}</td>
+          <td>${a.calories}</td>
+          <td>${a.steps}</td>
+        `;
+        tableBody.appendChild(row);
+        totalCalories += a.calories;
+        totalSteps += a.steps;
+      });
+
+      totalCaloriesEl.textContent = totalCalories;
+      totalStepsEl.textContent = totalSteps;
+      progressBar.style.width = Math.min((totalSteps / 10000) * 100, 100) + '%';
+    }
+
+    addBtn.addEventListener('click', () => {
+      const activity = activityInput.value.trim();
+      const calories = parseInt(caloriesInput.value);
+      const steps = parseInt(stepsInput.value);
+      if (!activity || !calories || !steps) {
+        alert('Please fill all fields!');
+        return;
+      }
+      const newActivity = {
+        date: new Date().toLocaleDateString(),
+        activity,
+        calories,
+        steps
+      };
+      activities.push(newActivity);
+      localStorage.setItem('fitnessData', JSON.stringify(activities));
+      activityInput.value = '';
+      caloriesInput.value = '';
+      stepsInput.value = '';
+      renderTable();
+    });
+
+    renderTable();
+  </script>
+</body>
+</html>
